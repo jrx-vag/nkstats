@@ -1,0 +1,17 @@
+{application, nkstats,
+ [{description, "Pluggable metrics exporter for Netcomposer"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib,
+    inets,
+    prometheus,
+    accept
+   ]},
+  {env,[]},
+  {modules, []},
+  {mod, {nkstats_app, []}},
+  {maintainers, ["Pedro Gutierrez"]},
+  {licenses, ["MIT"]}
+ ]}.
