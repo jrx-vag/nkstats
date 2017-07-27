@@ -8,11 +8,16 @@ setup(C) ->
     [ setup_metric(M) || M <- C:metrics(specs) ].
    
 setup_metric(#{ type := Type, name := Name, help := Help}) ->
-    setup_metric(Type, Name, Help ).
+    setup_metric(Type, Name, Help );
+
+setup_metric(#{ type := Type, name := Name, labels := Labels, help := Help}) ->
+    setup_metric(Type, Name, Labels, Help ).
 
 setup_metric(gauge, Name, Help) ->
     prometheus_gauge:new([{name, Name}, {help, Help}]).
 
+setup_metric(gauge, Name, Labels, Help) ->
+    prometheus_gauge:new([{name, Name}, {labels, Labels}, {help, Help}]).
 
 collect() ->
     [ collect(C) || C <- nkstats_config:collectors() ].
@@ -21,10 +26,16 @@ collect(C) ->
     [ collect_metric(M) || M <- C:metrics(values) ].
 
 collect_metric(#{ type := Type, name := Name, value := Value}) ->
-    collect_metric(Type, Name, Value).
+    collect_metric(Type, Name, Value);
+
+collect_metric(#{ type := Type, name := Name, labels := Labels, value := Value}) ->
+    collect_metric(Type, Name, Labels, Value).
 
 collect_metric(gauge, Name, Value) ->
     prometheus_gauge:set(Name, Value).
+
+collect_metric(gauge, Name, Labels, Value) ->
+    prometheus_gauge:set(Name, Labels, Value).
 
 metrics(_) ->
     collect(),
