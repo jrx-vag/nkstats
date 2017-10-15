@@ -1,4 +1,4 @@
--module(nkstats_prometheus).
+-module(nkstats_prometheus_old).
 -export([setup/0, metrics/1]).
 
 setup() ->

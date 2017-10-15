@@ -42,10 +42,16 @@ exporter_syntax() ->
     Base = nkstats_util:exporter_syntax(),
     Base#{
         config := #{
-            listen_ip => binary,
-            listen_port => integer,
-            listen_path => binary,
-            '__mandatory' => [listen_ip, listen_port, listen_path]
+            listen_ip => host,
+            listen_port => {integer, 1, 65535},
+            listen_path => basepath,
+            listen_secure => boolean,
+            '__defaults' => #{
+                listen_ip => <<"0.0.0.0">>,
+                listen_port => 8081,
+                listen_path => <<"/metrics">>,
+                listen_secure => false
+             }
         }
     }.
 
@@ -55,14 +61,15 @@ exporter_syntax() ->
 start_exporter(#{ config := #{
                              listen_ip := ListenIp,
                              listen_port := ListenPort,
-                             listen_path := ListenPath
+                             listen_path := ListenPath,
+                             listen_secure := _ListenSecure
                    }}) ->
 
-    Opts = #{tcp_listeners=>1, 
-             idle_timeout=>60000, 
+    Opts = #{ tcp_listeners => 1, 
+             idle_timeout => 60000, 
              path => ListenPath },
     
-    case nkpacket:start_listener({?MODULE, http, nklib_util:to_ip(ListenIp), ListenPort}, Opts) of
+    case nkpacket:start_listener({?MODULE, http, ListenIp, ListenPort}, Opts) of
         {ok, _} -> ok;
         {error, Error} -> {error, Error}
     end.
