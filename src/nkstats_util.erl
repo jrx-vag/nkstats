@@ -17,18 +17,15 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
--module(nkstats_sup).
--behaviour(supervisor).
--export([start_link/0]).
--export([init/1]).
+-module(nkstats_util).
+-export([exporter_syntax/0]).
+-include("nkstats.hrl").
 
-start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+exporter_syntax() ->
+    #{
+        id => atom,
+        class => atom,
+        config => map,
+        '__mandatory' => [config, class]
+    }.
 
-init([]) ->
-    ChildSpecs = [],
-    %ChildSpecs = [ {nkstats_server, 
-    %                {nkstats_server, start_link, []}, 
-    %                permanent, 5000, worker, [nkstats_server]}
-    %             ],
-    {ok, {{one_for_one, 0, 1}, ChildSpecs}}.
