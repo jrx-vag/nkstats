@@ -33,7 +33,7 @@
 %% These are used when Nktstats Prometheus is started as a NkSERVICE plugin
 %% ===================================================================
 plugin_deps() ->
-    {nkstats}.
+    [nkstats].
 
 %% ===================================================================
 %% NkStats callbacks

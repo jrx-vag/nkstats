@@ -29,7 +29,6 @@ start(_, _) ->
         {ok, _} ->
             {ok, Vsn} = application:get_key(?APP, vsn),
             ?INFO("v~s is starting", [Vsn]),
-            %nkstats_server:start(),
             {ok, Pid} = nkstats_sup:start_link(),
             {ok, Pid};
         {error, Error} ->
