@@ -20,6 +20,7 @@
 -module(nkstats_prometheus_callbacks).
 -export([plugin_deps/0]).
 -export([nkstats_parse_exporter/2, 
+         nkstats_start_exporter/1,
          nkstats_exporter_syntax/0,
          nkstats_register_metric/3,
          nkstats_record_value/3]).
@@ -39,6 +40,9 @@ plugin_deps() ->
 %% ===================================================================
 nkstats_parse_exporter(Data, ParseOpts) ->
     nkstats_prometheus:parse_exporter(Data, ParseOpts).
+
+nkstats_start_exporter(Data) ->
+    nkstats_prometheus:start_exporter(Data).
 
 nkstats_exporter_syntax() ->
     nkstats_prometheus:exporter_syntax().

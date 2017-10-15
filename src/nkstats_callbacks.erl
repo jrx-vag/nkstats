@@ -22,6 +22,7 @@
 -export([service_init/2]).
 -export([nkstats_get_exporter/2,
         nkstats_parse_exporter/2,
+        nkstats_start_exporter/1,
         nkstats_register_metric/3,
         nkstats_record_value/3]).
 -include("nkstats.hrl").
@@ -44,7 +45,12 @@ service_init(_Service,  #{id:=SrvId}=State) ->
                 case SrvId:nkstats_parse_exporter(Data, #{}) of
                     {ok, Exporter, _} ->
                         ?WARN("loading exporter ~p", [Id]),
-                        nkstats_app:put_exporter(nklib_util:to_binary(Id), Exporter);
+                        case SrvId:nkstats_start_exporter(Exporter) of
+                            ok -> 
+                                nkstats_app:put_exporter(nklib_util:to_binary(Id), Exporter);
+                            {error, Error} ->
+                                ?WARN("error with exporter ~p: ~p", [Data, Error])
+                        end;
                     {error, Error} ->
                         ?WARN("error with exporter ~p: ~p", [Data, Error])
                 end;
@@ -74,6 +80,12 @@ nkstats_get_exporter(_SrvId, Id) ->
     {ok, nkstats:exporter(), [binary()]} | {error, term()}.
 
 nkstats_parse_exporter(_Exporter, _Opts) ->
+    {error, invalid_exporter}.
+
+-spec nkstats_start_exporter(map()) ->
+    ok | {error, term()}.
+
+nkstats_start_exporter(_Exporter) ->
     {error, invalid_exporter}.
 
 

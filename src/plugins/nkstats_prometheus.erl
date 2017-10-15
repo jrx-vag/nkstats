@@ -19,6 +19,7 @@
 %% -------------------------------------------------------------------
 -module(nkstats_prometheus).
 -export([parse_exporter/2,
+         start_exporter/1,
          exporter_syntax/0,
          register_metric/5,
          record_value/4]).
@@ -41,11 +42,31 @@ exporter_syntax() ->
     Base = nkstats_util:exporter_syntax(),
     Base#{
         config := #{
-            server_name => atom,
-            global => atom,
-            '__mandatory' => [atom, global]
+            listen_ip => binary,
+            listen_port => integer,
+            listen_path => binary,
+            '__mandatory' => [listen_ip, listen_port, listen_path]
         }
     }.
+
+-spec start_exporter(nkstats:exporter()) ->
+    ok | {error, term()}.
+
+start_exporter(#{ config := #{
+                             listen_ip := ListenIp,
+                             listen_port := ListenPort,
+                             listen_path := ListenPath
+                   }}) ->
+
+    Opts = #{tcp_listeners=>1, 
+             idle_timeout=>60000, 
+             path => ListenPath },
+    
+    case nkpacket:start_listener({?MODULE, http, nklib_util:to_ip(ListenIp), ListenPort}, Opts) of
+        {ok, _} -> ok;
+        {error, Error} -> {error, Error}
+    end.
+
 
 -spec register_metric(nkservice:id(),
              nkstats:exporter(),
@@ -54,9 +75,11 @@ exporter_syntax() ->
              nkstats:metric_description()) ->
     ok | {error, term()}.
 
-register_metric(_SrvId, #{ config := #{ 
-                             server_name := _PidName,
-                             gobal := _Global }}, _Type, _Name, _Desc) ->
+register_metric(_SrvId, #{ config := #{
+                             listen_ip := _ListenIp,
+                             listen_port := _ListenPort,
+                             listen_path := _ListenPath
+                            }}, _Type, _Name, _Desc) ->
     ok.
 
 -spec record_value(nkservice:id(),
@@ -66,7 +89,9 @@ register_metric(_SrvId, #{ config := #{
     ok | {error, term()}.
 
 record_value(_SrvId, #{ config:=#{ 
-                            server_name := _PidName,
-                            gobal := _Global }}, _Name, _Value) ->
+                             listen_ip := _ListenIp,
+                             listen_port := _ListenPort,
+                             listen_path := _ListenPath
+                            }}, _Name, _Value) ->
 
     ok.
