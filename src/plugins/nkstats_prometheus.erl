@@ -65,10 +65,12 @@ start_exporter(#{ config := #{
                              listen_secure := _ListenSecure
                    }}) ->
 
-    Opts = #{ tcp_listeners => 1, 
-             idle_timeout => 60000, 
-             path => ListenPath },
+    Opts = #{ group => ?MODULE,
+              tcp_listeners => 1, 
+              idle_timeout => 60000, 
+              path => ListenPath },
     
+    nkpacket:register_protocol(http, ?MODULE),
     case nkpacket:start_listener({?MODULE, http, ListenIp, ListenPort}, Opts) of
         {ok, _} -> ok;
         {error, Error} -> {error, Error}
