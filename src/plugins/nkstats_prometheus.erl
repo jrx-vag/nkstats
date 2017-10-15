@@ -66,14 +66,18 @@ start_exporter(#{ config := #{
                    }}) ->
 
     Opts = #{ group => ?MODULE,
-              tcp_listeners => 1, 
-              idle_timeout => 60000, 
+              tcp_listeners => 2, 
+              idle_timeout => 30000, 
               path => ListenPath },
     
-    nkpacket:register_protocol(http, ?MODULE),
-    case nkpacket:start_listener({?MODULE, http, ListenIp, ListenPort}, Opts) of
-        {ok, _} -> ok;
-        {error, Error} -> {error, Error}
+    case nkpacket:register_protocol(http, ?MODULE) of
+        ok -> 
+            case nkpacket:start_listener({?MODULE, http, ListenIp, ListenPort}, Opts) of
+                {ok, _} -> ok;
+                {error, Error} -> {error, Error}
+            end;
+        Other ->
+            Other
     end.
 
 
