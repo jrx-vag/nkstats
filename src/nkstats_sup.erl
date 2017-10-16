@@ -26,9 +26,4 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    ChildSpecs = [],
-    %ChildSpecs = [ {nkstats_server, 
-    %                {nkstats_server, start_link, []}, 
-    %                permanent, 5000, worker, [nkstats_server]}
-    %             ],
-    {ok, {{one_for_one, 0, 1}, ChildSpecs}}.
+    {ok, {{one_for_one, 0, 1}, []}}.
