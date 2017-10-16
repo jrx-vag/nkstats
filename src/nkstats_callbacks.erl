@@ -37,26 +37,7 @@ plugin_deps() -> [].
 plugin_syntax() -> #{}.
 
 service_init(_Service,  #{id:=SrvId}=State) ->
-    ?INFO("service init: ~p", [SrvId]),
-    lists:foreach(
-        fun
-            (#{id := Id}=Data) ->
-                case SrvId:nkstats_parse_exporter(Data, #{}) of
-                    {ok, Exporter, _} ->
-                        ?WARN("loading exporter ~p", [Id]),
-                        case SrvId:nkstats_start_exporter(Exporter) of
-                            ok -> 
-                                nkstats_app:put_exporter(nklib_util:to_binary(Id), Exporter);
-                            {error, Error} ->
-                                ?WARN("error with exporter ~p: ~p", [Data, Error])
-                        end;
-                    {error, Error} ->
-                        ?WARN("error with exporter ~p: ~p", [Data, Error])
-                end;
-            (Data) ->
-                ?WARN("invalid exporter: ~p", [Data])
-        end,
-        nkstats_app:get(exporters, [])),
+    ?INFO("service init: ~p, with state: ~p", [SrvId, State]),
     {ok, State}.
 
 
