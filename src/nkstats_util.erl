@@ -23,9 +23,6 @@
 
 exporter_syntax() ->
     #{
-        id => atom,
-        class => atom,
-        config => map,
-        '__mandatory' => [config, class]
+        stats_exporter => atom,
+        '__mandatory' => [stats_exporter]
     }.
-

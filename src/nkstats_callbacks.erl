@@ -22,7 +22,6 @@
 -export([service_init/2]).
 -export([nkstats_get_exporter/2,
         nkstats_parse_exporter/2,
-        nkstats_start_exporter/1,
         nkstats_register_metric/3,
         nkstats_record_value/3]).
 -include("nkstats.hrl").
@@ -81,13 +80,6 @@ nkstats_get_exporter(_SrvId, Id) ->
 
 nkstats_parse_exporter(_Exporter, _Opts) ->
     {error, invalid_exporter}.
-
--spec nkstats_start_exporter(map()) ->
-    ok | {error, term()}.
-
-nkstats_start_exporter(_Exporter) ->
-    {error, invalid_exporter}.
-
 
 %% @doc Register information about a metric
 -spec nkstats_register_metric(nkservice:id(), 
