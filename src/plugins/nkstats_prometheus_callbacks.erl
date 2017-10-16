@@ -47,10 +47,10 @@ nkstats_start_exporter(Data) ->
 nkstats_exporter_syntax() ->
     nkstats_prometheus:exporter_syntax().
 
-nkstats_register_metric(SrvId, #{class:= prometheus}=Exporter, #{type := Type,
+nkstats_register_metric(_SrvId, #{class:= prometheus}, #{type := Type,
                                                                 name := Name,
                                                                 description := Desc}) ->
-    nkstats_prometheus:register_metric(SrvId, Exporter, Type, Name, Desc);
+    nkprometheus:register_metric(Type, Name, Desc);
 
 nkstats_register_metric(_SrvID, #{class:= prometheus}, MetricInfo) ->
     {error, {invalid_metric_info, MetricInfo}};
@@ -58,9 +58,9 @@ nkstats_register_metric(_SrvID, #{class:= prometheus}, MetricInfo) ->
 nkstats_register_metric(_, _, _) ->
     continue.
 
-nkstats_record_value(SrvId, #{class:= prometheus}=Exporter, #{name := Name,
+nkstats_record_value(_SrvId, #{class:= prometheus}, #{name := Name,
                                                               value := Value}) ->
-    nkstats_prometheus:record_value(SrvId, Exporter, Name, Value);
+    nkprometheus:record_value(Name, Value);
 
 nkstats_record_value(_SrvID, #{class:= prometheus}, MetricValue) ->
     {error, {invalid_metric_value, MetricValue}};
