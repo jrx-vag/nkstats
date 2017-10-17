@@ -36,7 +36,7 @@ nkstats_parse_exporter(_, _) ->
     continue.
 
 nkstats_exporter_service_spec(Exporter) ->
-    #{ id => nkprometheus,
+    #{ id => nkstats_prometheus_exporter,
        plugins => [nkservice_rest],
        callback => nkstats_prometheus_exporter_callbacks,
        rest_url => rest_url(Exporter),
