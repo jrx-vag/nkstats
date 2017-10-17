@@ -33,7 +33,7 @@ plugin_syntax() -> #{}.
 service_init(_Service,  #{id:=SrvId}=State) ->
     ?INFO("service init: ~p, with state: ~p and pid: ~p", [SrvId, State, self()]),
     case nkstats_app:all_exporters() of 
-        {ok, Configs} ->
+        {ok, #{ exporters :=  Configs}} ->
             lists:foreach(fun(Config) ->
                                   case nkstats:parse_exporter(SrvId, Config, #{}) of 
                                       {ok, Exporter, _} -> 
