@@ -22,7 +22,7 @@
 -include("nkstats.hrl").
 
 parse_exporter(SrvId, Config, Opts) ->
-    SrvId:parse_exporter(Config, Opts).
+    SrvId:nkstats_parse_exporter(Config, Opts).
 
 exporter_service_spec(SrvId, Exporter) ->
     SrvId:nkstats_exporter_service_spec(Exporter).
