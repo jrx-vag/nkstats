@@ -29,8 +29,13 @@
 plugin_deps() ->
     [nkstats].
 
-nkstats_parse_exporter(#{ class := prometheus}=Data, ParseOpts) ->
-    nklib_syntax:parse(Data, exporter_syntax(), ParseOpts);
+nkstats_parse_exporter(#{ class := prometheus }=Data, ParseOpts) ->
+    case nklib_syntax:parse(Data, exporter_syntax(), ParseOpts) of
+        {ok, #{config := Config}, _} -> 
+            nklib_syntax:parse(Config, prometheus_syntax(), ParseOpts);
+        {error, Error} ->
+            {error, Error}
+    end;
 
 nkstats_parse_exporter(_, _) ->
     continue.
@@ -42,8 +47,9 @@ nkstats_exporter_service_spec(Exporter) ->
        rest_url => rest_url(Exporter),
        debug => []}.
 
-exporter_syntax() ->
-    #{ listen_ip => host,
+prometheus_syntax() ->
+    #{ 
+       listen_ip => host,
        listen_port => {integer, 1, 65535},
        listen_path => basepath,
        listen_secure => boolean,
@@ -53,6 +59,13 @@ exporter_syntax() ->
          listen_path => <<"/metrics">>,
          listen_secure => false
         }
+     }.
+
+exporter_syntax() ->
+    #{ id => atom,
+       class => atom,
+       config => map,
+       '__mandatory' => [id, class, config]
      }.
 
 nkstats_register_metric(_SrvId, #{ class := prometheus}, #{type := gauge,
