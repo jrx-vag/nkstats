@@ -47,27 +47,6 @@ nkstats_exporter_service_spec(Exporter) ->
        rest_url => rest_url(Exporter),
        debug => []}.
 
-prometheus_syntax() ->
-    #{ 
-       listen_ip => host,
-       listen_port => {integer, 1, 65535},
-       listen_path => basepath,
-       listen_secure => boolean,
-       '__defaults' => #{
-         listen_ip => <<"127.0.0.1">>,
-         listen_port => 8081,
-         listen_path => <<"/metrics">>,
-         listen_secure => false
-        }
-     }.
-
-exporter_syntax() ->
-    #{ id => atom,
-       class => atom,
-       config => map,
-       '__mandatory' => [id, class, config]
-     }.
-
 nkstats_register_metric(_SrvId, #{ class := prometheus}, #{type := gauge,
                                                          name := Name,
                                                          description := Desc}) ->
@@ -90,7 +69,6 @@ nkstats_record_value(_SrvID, #{ class := prometheus}, MetricValue) ->
 nkstats_record_value(_, _, _) ->
     continue.
 
-
 rest_url(#{ listen_ip := Host,
             listen_port := Port,
             listen_path := Path,
@@ -99,3 +77,23 @@ rest_url(#{ listen_ip := Host,
     Http1 = case Secure of true -> <<"https">>; false -> <<"http">> end,
     <<Http1/binary, "://", Host/binary, ":", BinPort/binary, Path/binary>>.
 
+prometheus_syntax() ->
+    #{ 
+       listen_ip => host,
+       listen_port => {integer, 1, 65535},
+       listen_path => basepath,
+       listen_secure => boolean,
+       '__defaults' => #{
+         listen_ip => <<"127.0.0.1">>,
+         listen_port => 8081,
+         listen_path => <<"/metrics">>,
+         listen_secure => false
+        }
+     }.
+
+exporter_syntax() ->
+    #{ id => atom,
+       class => atom,
+       config => map,
+       '__mandatory' => [id, class, config]
+     }.
