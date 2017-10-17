@@ -18,14 +18,11 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkstats).
--export([parse_exporter/3]).
--export_type([exporter_id/0, exporter/0]).
+-export([parse_exporter/3, exporter_service_spec/2]).
 -include("nkstats.hrl").
 
--type exporter_id() :: term().
--type exporter() :: #{ config => map() }.
+parse_exporter(SrvId, Config, Opts) ->
+    SrvId:parse_exporter(Config, Opts).
 
--spec parse_exporter(nkservice:id(), map(), nklib_syntax:parse_opts()) ->
-    {ok, exporter(), [binary()]} | {error, term()}.
-parse_exporter(SrvId, Map, ParseOpts) ->
-    SrvId:nkstats_parse_exporter(Map, ParseOpts).
+exporter_service_spec(SrvId, Exporter) ->
+    SrvId:nkstats_exporter_service_spec(Exporter).

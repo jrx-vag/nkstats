@@ -20,17 +20,11 @@
 -module(nkstats_callbacks).
 -export([plugin_deps/0, plugin_syntax/0]).
 -export([service_init/2]).
--export([nkstats_get_exporter/2,
-        nkstats_parse_exporter/2,
-        nkstats_register_metric/3,
-        nkstats_record_value/3]).
+-export([nkstats_parse_exporter/2,
+         nkstats_exporter_service_spec/1,
+         nkstats_register_metric/3,
+         nkstats_record_value/3]).
 -include("nkstats.hrl").
-
-%% ===================================================================
-%% Plugin callbacks
-%%
-%% These are used when nkstats is started as a NkSERVICE plugin
-%% ===================================================================
 
 plugin_deps() -> [].
 
@@ -38,44 +32,43 @@ plugin_syntax() -> #{}.
 
 service_init(_Service,  #{id:=SrvId}=State) ->
     ?INFO("service init: ~p, with state: ~p and pid: ~p", [SrvId, State, self()]),
+    case nkstats_app:all_exporters() of 
+        {ok, Configs} ->
+            lists:foreach(fun(Config) ->
+                                  case nkstats:parse_exporter(SrvId, Config, #{}) of 
+                                      {ok, Exporter, _} -> 
+                                          Spec = nkstats:exporter_service_spec(SrvId, Exporter), 
+                                          start_exporter(Spec);
+                                      {error, Error} ->
+                                          ?WARN("cannot start exporter: ~p", [Error])
+                                  end
+                          end, Configs);
+        {error, Error} ->
+            ?WARN("invalid configuration: ~p", [Error])
+    end,
     {ok, State}.
 
 
-%% ===================================================================
-%% Stats processing callbacks
-%% ===================================================================
-
--spec nkstats_get_exporter(nkservice:id(), nkstats:exporter_id()) ->
-    {ok, nkstats:exporter()} | {error, term()}.
-
-nkstats_get_exporter(_SrvId, Id) ->
-    case nkstats_app:get_exporter(Id) of
-        not_found ->
-            {error, {exporter_not_found, Id}};
-        Exporter -> 
-            {ok, Exporter}
+start_exporter(#{id := SrvId}=Spec) ->
+    case nkservice:start(SrvId, Spec) of
+        {ok, _} ->
+            lager:info("Started exporter ~p", [SrvId]),
+            ok;
+        {error, already_started} ->
+            ok;
+        {error, Error} ->
+            lager:warning("Error starting exporter ~p: ~p", [Spec, Error]),
+            error(service_start_error)
     end.
-
--spec nkstats_parse_exporter(map(), nklib_syntax:parse_opts()) ->
-    {ok, nkstats:exporter(), [binary()]} | {error, term()}.
 
 nkstats_parse_exporter(_Exporter, _Opts) ->
     {error, invalid_exporter}.
 
-%% @doc Register information about a metric
--spec nkstats_register_metric(nkservice:id(), 
-                              nkstats:exporter(),
-                              nkstats:metric_info()) ->
-    ok | {error, term()}.
+nkstats_exporter_service_spec(_Exporter) ->
+    {error, invalid_exporter}.
 
 nkstats_register_metric(_SrvId, _Exporter, _MetricInfo) ->
     {error, invalid_exporter}.
-
-%% @doc Record a value for a metric
--spec nkstats_record_value(nkservice:id(), 
-                              nkstats:exporter(),
-                              nkstats:metric_value()) ->
-    ok | {error, term()}.
 
 nkstats_record_value(_SrvId, _Exporter, _MetricValue) ->
     {error, invalid_exporter}.

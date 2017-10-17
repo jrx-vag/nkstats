@@ -20,12 +20,11 @@
 -module(nkstats_app).
 -behaviour(application).
 -export([start/2, stop/1]).
--export([get_exporter/1, put_exporter/2, get/2]).
+-export([all_exporters/0]).
 -include("nkstats.hrl").
 
 start(_, _) ->
-    Syntax = #{exporters=> {list, map}},
-    case nklib_config:load_env(?APP, Syntax) of
+    case all_exporters() of
         {ok, _} ->
             {ok, Vsn} = application:get_key(?APP, vsn),
             ?INFO("v~s is starting", [Vsn]),
@@ -38,13 +37,14 @@ start(_, _) ->
 stop(_) ->
     ok.
 
-get_exporter(Id) ->
-    get({exporter, nklib_util:to_binary(Id)}, not_found).
+all_exporters() -> 
+    Syntax = exporters_syntax(),
+    nklib_config:load_env(?APP, Syntax).
+        
 
-put_exporter(Id, exporter) ->
-    Ids = get(exporter_ids, []),
-    put(exporter_ids, nklib_util:store_value(nklib_util:to_binary(Id), Ids)),
-    put({exporter, Id}, exporter).
-
-get(Key, Default) ->
-    nklib_config:get(?APP, Key, Default).
+exporters_syntax() ->
+    #{ exporters => {list, map},
+       '__defaults' => #{
+         exporters => []
+        }
+     }.
