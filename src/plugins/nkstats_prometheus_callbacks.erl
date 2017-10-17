@@ -55,23 +55,23 @@ exporter_syntax() ->
         }
      }.
 
-nkstats_register_metric(_SrvId, #{ stats_exporter := prometheus}, #{type := Type,
+nkstats_register_metric(_SrvId, #{ class := prometheus}, #{type := gauge,
                                                          name := Name,
                                                          description := Desc}) ->
-    nkprometheus:register_metric(Type, Name, Desc);
-
-nkstats_register_metric(_SrvID, #{ stats_exporter := prometheus}, MetricInfo) ->
+    prometheus_gauge:new([{name, Name}, {help, Desc}]);
+        
+nkstats_register_metric(_SrvID, #{ class := prometheus}, MetricInfo) ->
     {error, {invalid_metric_info, MetricInfo}};
 
 nkstats_register_metric(_, _, _) ->
     continue.
 
-nkstats_record_value(_SrvId, #{ stats_exporter := prometheus}, #{type := Type,
+nkstats_record_value(_SrvId, #{ class := prometheus}, #{type := gauge,
                                                       name := Name,
                                                       value := Value}) ->
-    nkprometheus:record_value(Type, Name, Value);
+    prometheus_gauge:set(Name, Value);
 
-nkstats_record_value(_SrvID, #{ stats_exporter := prometheus}, MetricValue) ->
+nkstats_record_value(_SrvID, #{ class := prometheus}, MetricValue) ->
     {error, {invalid_metric_value, MetricValue}};
 
 nkstats_record_value(_, _, _) ->
