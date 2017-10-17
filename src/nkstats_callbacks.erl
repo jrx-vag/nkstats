@@ -37,7 +37,7 @@ plugin_deps() -> [].
 plugin_syntax() -> #{}.
 
 service_init(_Service,  #{id:=SrvId}=State) ->
-    ?INFO("service init: ~p, with state: ~p", [SrvId, State]),
+    ?INFO("service init: ~p, with state: ~p and pid: ~p", [SrvId, State, self()]),
     {ok, State}.
 
 
