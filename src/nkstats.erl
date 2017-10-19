@@ -32,13 +32,13 @@ exporter_service_spec(SrvId, Exporter) ->
 
 register_metric(SrvId, Type, Name, Desc) ->
     lists:foreach(fun(Exporter) ->
-                    SrvId:register_metric(Exporter, Type, Name, Desc)  
+                    SrvId:nkstats_register_metric(Exporter, Type, Name, Desc)  
                   end, service_stats_exporters(SrvId)).
 
 
 record_value(SrvId, Type, Name, Value) ->
     lists:foreach(fun(Exporter) ->
-                    SrvId:record_value(Exporter, Type, Name, Value)  
+                    SrvId:nkstats_record_value(Exporter, Type, Name, Value)  
                   end, service_stats_exporters(SrvId)).
 
 service_stats_exporters(SrvId) ->
