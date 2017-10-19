@@ -21,8 +21,8 @@
 -export([plugin_deps/0]).
 -export([nkstats_parse_exporter/2, 
          nkstats_exporter_service_spec/1,
-         nkstats_register_metric/3,
-         nkstats_record_value/3]).
+         nkstats_register_metric/4,
+         nkstats_record_value/4]).
 
 -include("../../include/nkstats.hrl").
 
@@ -47,26 +47,22 @@ nkstats_exporter_service_spec(Exporter) ->
        rest_url => rest_url(Exporter),
        debug => []}.
 
-nkstats_register_metric(_SrvId, #{ class := prometheus}, #{type := gauge,
-                                                         name := Name,
-                                                         description := Desc}) ->
+nkstats_register_metric(prometheus, gauge, Name, Desc) ->
     prometheus_gauge:new([{name, Name}, {help, Desc}]);
         
-nkstats_register_metric(_SrvID, #{ class := prometheus}, MetricInfo) ->
-    {error, {invalid_metric_info, MetricInfo}};
+nkstats_register_metric(prometheus, Type, Name, _) ->
+    {error, {invalid_metric_type, Type, Name}};
 
-nkstats_register_metric(_, _, _) ->
+nkstats_register_metric(_, _, _, _) ->
     continue.
 
-nkstats_record_value(_SrvId, #{ class := prometheus}, #{type := gauge,
-                                                      name := Name,
-                                                      value := Value}) ->
+nkstats_record_value(prometheus, gauge, Name, Value) ->
     prometheus_gauge:set(Name, Value);
 
-nkstats_record_value(_SrvID, #{ class := prometheus}, MetricValue) ->
-    {error, {invalid_metric_value, MetricValue}};
+nkstats_record_value(prometheus, Type, Name, _) ->
+    {error, {invalid_metric_type, Type, Name}};
 
-nkstats_record_value(_, _, _) ->
+nkstats_record_value(_, _, _, _) ->
     continue.
 
 rest_url(#{ listen_ip := Host,

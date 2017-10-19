@@ -18,7 +18,10 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkstats).
--export([parse_exporter/3, exporter_service_spec/2]).
+-export([parse_exporter/3, 
+         exporter_service_spec/2,
+         register_metric/4,
+         record_value/4]).
 -include("nkstats.hrl").
 
 parse_exporter(SrvId, Config, Opts) ->
@@ -26,3 +29,18 @@ parse_exporter(SrvId, Config, Opts) ->
 
 exporter_service_spec(SrvId, Exporter) ->
     SrvId:nkstats_exporter_service_spec(Exporter).
+
+register_metric(SrvId, Type, Name, Desc) ->
+    lists:foreach(fun(Exporter) ->
+                    SrvId:register_metric(Exporter, Type, Name, Desc)  
+                  end, service_stats_exporters(SrvId)).
+
+
+record_value(SrvId, Type, Name, Value) ->
+    lists:foreach(fun(Exporter) ->
+                    SrvId:record_value(Exporter, Type, Name, Value)  
+                  end, service_stats_exporters(SrvId)).
+
+service_stats_exporters(SrvId) ->
+    Config = SrvId:config(),
+    maps:get(stats_exporters, Config, []).

@@ -22,8 +22,8 @@
 -export([service_init/2]).
 -export([nkstats_parse_exporter/2,
          nkstats_exporter_service_spec/1,
-         nkstats_register_metric/3,
-         nkstats_record_value/3]).
+         nkstats_register_metric/4,
+         nkstats_record_value/4]).
 -include("nkstats.hrl").
 
 plugin_deps() -> [].
@@ -67,9 +67,9 @@ nkstats_parse_exporter(_Exporter, _Opts) ->
 nkstats_exporter_service_spec(_Exporter) ->
     {error, invalid_exporter}.
 
-nkstats_register_metric(_SrvId, _Exporter, _MetricInfo) ->
+nkstats_register_metric(_Exporter, _Type, _Name, _Desc) ->
     {error, invalid_exporter}.
 
-nkstats_record_value(_SrvId, _Exporter, _MetricValue) ->
+nkstats_record_value(_Exporter, _Type, _Name, _Value) ->
     {error, invalid_exporter}.
 
