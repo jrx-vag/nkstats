@@ -1,6 +1,6 @@
 {application, nkstats,
  [{description, "Pluggable metrics exporter for Netcomposer"},
-  {vsn, "0.0.1"},
+  {vsn, "1.0.1"},
   {registered, []},
   {applications,
    [kernel,
