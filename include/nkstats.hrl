@@ -18,6 +18,7 @@
 %%
 %% -------------------------------------------------------------------
 -define(APP, nkstats).
+-define(SRV, nkstats).
 -define(LOG(Level, Txt, Args), lager:Level("nkstats "++Txt, Args)).
 -define(INFO(Txt, Args), ?LOG(info, Txt, Args)).
 -define(DEBUG(Txt, Args), ?LOG(debug, Txt, Args)).

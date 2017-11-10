@@ -18,13 +18,11 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkstats_prometheus_exporter_callbacks).
--export([plugin_deps/0, nkservice_rest_http/3]).
+-export([nkservice_rest_http/4]).
 
-plugin_deps() -> [nkservice_rest].
-
-nkservice_rest_http(get, _, _) ->
+nkservice_rest_http(_Id, get, _, _) ->
     Scrape = prometheus_text_format:format(),
     {http, 200, [{<<"content-type">>, <<"text/plain">>}], Scrape};
 
-nkservice_rest_http(_Method, _Path, _Req) ->
+nkservice_rest_http(_Id, _Method, _Path, _Req) ->
     continue.

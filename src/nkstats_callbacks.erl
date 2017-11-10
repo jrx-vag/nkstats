@@ -18,7 +18,6 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkstats_callbacks).
--export([plugin_deps/0, plugin_syntax/0]).
 -export([service_init/2]).
 -export([nkstats_parse_exporter/2,
          nkstats_exporter_service_spec/1,
@@ -26,19 +25,17 @@
          nkstats_record_value/4]).
 -include("nkstats.hrl").
 
-plugin_deps() -> [].
-
-plugin_syntax() -> #{}.
-
 service_init(_Service,  #{id:=SrvId}=State) ->
     ?INFO("service init: ~p, with state: ~p and pid: ~p", [SrvId, State, self()]),
     case nkstats_app:all_exporters() of 
         {ok, #{ exporters :=  Configs}} ->
-            lists:foreach(fun(Config) ->
+            lists:foreach(fun(#{ id := ExporterId} = Config) ->
                                   case nkstats:parse_exporter(SrvId, Config, #{}) of 
                                       {ok, Exporter, _} -> 
                                           Spec = nkstats:exporter_service_spec(SrvId, Exporter), 
                                           start_exporter(Spec);
+                                      continue ->
+                                          ?WARN("~p not interested in ~p", [SrvId, ExporterId]);
                                       {error, Error} ->
                                           ?WARN("cannot start exporter: ~p", [Error])
                                   end

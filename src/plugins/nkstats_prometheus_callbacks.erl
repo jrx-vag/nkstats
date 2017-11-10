@@ -18,16 +18,12 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkstats_prometheus_callbacks).
--export([plugin_deps/0]).
 -export([nkstats_parse_exporter/2, 
          nkstats_exporter_service_spec/1,
          nkstats_register_metric/4,
          nkstats_record_value/4]).
 
 -include("../../include/nkstats.hrl").
-
-plugin_deps() ->
-    [nkstats].
 
 nkstats_parse_exporter(#{ class := prometheus }=Data, ParseOpts) ->
     case nklib_syntax:parse(Data, exporter_syntax(), ParseOpts) of
@@ -44,7 +40,8 @@ nkstats_exporter_service_spec(Exporter) ->
     #{ id => nkstats_prometheus_exporter,
        plugins => [nkservice_rest],
        callback => nkstats_prometheus_exporter_callbacks,
-       rest_url => rest_url(Exporter),
+       nkservice_rest => [#{id => nkstats_prometheus_exporter_rest,
+                            url => rest_url(Exporter)}],
        debug => []}.
 
 nkstats_register_metric(prometheus, gauge, Name, Desc) ->
