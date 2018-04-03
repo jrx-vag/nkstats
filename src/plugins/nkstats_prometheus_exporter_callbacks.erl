@@ -20,9 +20,9 @@
 -module(nkstats_prometheus_exporter_callbacks).
 -export([nkservice_rest_http/4]).
 
-nkservice_rest_http(_Id, get, _, _) ->
+nkservice_rest_http(_Id, get, _, Req) ->
     Scrape = prometheus_text_format:format(),
-    {http, 200, [{<<"content-type">>, <<"text/plain">>}], Scrape};
+    {http, 200, [{<<"content-type">>, <<"text/plain">>}], Scrape, Req};
 
 nkservice_rest_http(_Id, _Method, _Path, _Req) ->
     continue.
